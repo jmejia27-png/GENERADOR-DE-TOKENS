@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yobel - Generador de Códigos de Verificación</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --yobel-blue: #2F8FD1;
+            --yobel-blue-dark: #1E6FA8;
+            --yobel-blue-pale: #EAF4FC;
+            --ink: #1A2733;
+            --ink-soft: #5B6B79;
+            --line: #C9DEEF;
+            --danger: #D6412E;
+            --danger-bg: #F4D9D5;
+            --success: #4C9A6A;
+            --success-bg: #DCEEE1;
+            --radius: 10px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .card-otp {
+            background-color: #FFFFFF;
+            border: 2px solid var(--yobel-blue);
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(47, 143, 209, 0.14);
+            width: 100%;
+            max-width: 420px;
+            padding: 36px 32px 32px;
+        }
+
+        .logo-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 22px;
+        }
+
+        .logo-box {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 28px;
+        }
+
+        .logo-box img {
+            height: 34px;
+            display: block;
+        }
+
+        h1.titulo {
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            color: var(--ink);
+            margin: 0 0 28px;
+        }
+
+        .campo {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .campo .icono {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--yobel-blue);
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 13px 14px 13px 42px;
+            border: 1.5px solid var(--yobel-blue);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .campo input::placeholder {
+            color: #9FB4C4;
+        }
+
+        .campo input:focus {
+            border-color: var(--yobel-blue-dark);
+            box-shadow: 0 0 0 3px var(--yobel-blue-pale);
+        }
+
+        .btn-generar {
+            width: 100%;
+            background-color: var(--yobel-blue);
+            color: #FFFFFF;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 24px;
+            padding: 13px;
+            margin-top: 6px;
+            cursor: pointer;
+            transition: background-color 0.15s ease, transform 0.05s ease;
+        }
+
+        .btn-generar:hover:not(:disabled) {
+            background-color: var(--yobel-blue-dark);
+        }
+
+        .btn-generar:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .btn-generar:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .mensaje-inline {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 6px;
+            padding: 9px 10px;
+            margin: -6px 0 16px;
+            display: none;
+        }
+
+        .mensaje-inline.error {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+            display: block;
+        }
+
+        .mensaje-inline.exito {
+            background-color: var(--success-bg);
+            color: var(--success);
+            display: block;
+        }
+
+        .resultado {
+            margin-top: 26px;
+            display: none;
+        }
+
+        .resultado.visible {
+            display: block;
+        }
+
+        .resultado hr {
+            border: none;
+            border-top: 1px solid var(--line);
+            margin: 0 0 20px;
+        }
+
+        .resultado-label {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--ink-soft);
+            margin: 0 0 10px;
+            font-weight: 500;
+        }
+
+        .otp-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .otp-display {
+            flex: 1;
+            background-color: var(--yobel-blue-pale);
+            border: 2px solid var(--yobel-blue);
+            color: var(--yobel-blue-dark);
+            font-family: 'Inter', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .otp-display.expirado {
+            color: var(--danger);
+            border-color: var(--danger);
+            background-color: var(--danger-bg);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+
+        .btn-copiar {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            border: 1.5px solid var(--yobel-blue);
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--yobel-blue);
+            transition: background-color 0.15s ease;
+        }
+
+        .btn-copiar:hover {
+            background-color: var(--yobel-blue-pale);
+        }
+
+        .timer-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 14px;
+        }
+
+        .timer-badge {
+            background-color: var(--yobel-blue-pale);
+            color: var(--yobel-blue-dark);
+            font-weight: 600;
+            font-size: 0.78rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        .timer-badge span {
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card-otp">
+    <div class="logo-wrap">
+        <div class="logo-box">
+            <img src="https://logo.clearbit.com/yobel.pe" alt="Yobel" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'yobel',style:'font-family:Playfair Display,serif;font-style:italic;font-weight:700;font-size:1.5rem;color:#1A2733;'}))">
+        </div>
+    </div>
+
+    <h1 class="titulo">GENERADOR DE CÓDIGOS DE VERIFICACIÓN</h1>
+
+    <form id="formOTP" novalidate>
+        <div class="campo">
+            <span class="icono">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+            <input type="text" id="username" placeholder="Usuario" autocomplete="username" required>
+        </div>
+
+        <div class="campo">
+            <span class="icono">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password" required>
+        </div>
+
+        <div id="mensajeInline" class="mensaje-inline" role="alert"></div>
+
+        <button type="submit" class="btn-generar" id="btnGenerar">GENERAR TOKEN</button>
+    </form>
+
+    <div id="seccionResultado" class="resultado">
+        <hr>
+        <p class="resultado-label">CÓDIGO GENERADO (4 DÍGITOS)</p>
+        <div class="otp-row">
+            <div id="otpCodigo" class="otp-display">0000</div>
+            <button type="button" class="btn-copiar" id="btnCopiar" title="Copiar código" aria-label="Copiar código">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+        </div>
+        <div class="timer-wrap">
+            <span class="timer-badge">Expiración en: <span id="timer">60</span>s</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    let intervaloTimer = null;
+
+    const mensajeInline = document.getElementById('mensajeInline');
+    const seccionResultado = document.getElementById('seccionResultado');
+    const btnGenerar = document.getElementById('btnGenerar');
+    const btnCopiar = document.getElementById('btnCopiar');
+    const otpCodigo = document.getElementById('otpCodigo');
+
+    function mostrarMensaje(texto, tipo) {
+        mensajeInline.textContent = texto;
+        mensajeInline.className = 'mensaje-inline ' + tipo;
+    }
+
+    function ocultarMensaje() {
+        mensajeInline.className = 'mensaje-inline';
+        mensajeInline.textContent = '';
+    }
+
+    document.getElementById('formOTP').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        ocultarMensaje();
+        btnGenerar.disabled = true;
+
+        try {
+            const respuesta = await fetch('/otp/generar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await respuesta.json();
+
+            if (!respuesta.ok) {
+                mostrarMensaje(data.mensaje || "Usuario o contraseña incorrectos", 'error');
+                seccionResultado.classList.remove('visible');
+                return;
+            }
+
+            mostrarMensaje("Acceso correcto", 'exito');
+            otpCodigo.textContent = data.codigo_otp;
+            otpCodigo.classList.remove('expirado');
+            seccionResultado.classList.add('visible');
+
+            iniciarTemporizador(data.expira_en_segundos);
+
+        } catch (err) {
+            mostrarMensaje("Error de comunicación con el servidor Uvicorn.", 'error');
+            seccionResultado.classList.remove('visible');
+        } finally {
+            btnGenerar.disabled = false;
+        }
+    });
+
+    btnCopiar.addEventListener('click', async () => {
+        const texto = otpCodigo.textContent;
+        if (!texto || texto === 'EXPIRADO') return;
+        try {
+            await navigator.clipboard.writeText(texto);
+            const original = btnCopiar.innerHTML;
+            btnCopiar.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            setTimeout(() => { btnCopiar.innerHTML = original; }, 1200);
+        } catch (err) {
+            // Silenciar si el navegador bloquea el portapapeles
+        }
+    });
+
+    function iniciarTemporizador(segundos) {
+        if (intervaloTimer) clearInterval(intervaloTimer);
+
+        let tiempoRestante = segundos;
+        const timerSpan = document.getElementById('timer');
+        timerSpan.textContent = tiempoRestante;
+
+        intervaloTimer = setInterval(() => {
+            tiempoRestante--;
+            timerSpan.textContent = tiempoRestante;
+
+            if (tiempoRestante <= 0) {
+                clearInterval(intervaloTimer);
+                otpCodigo.textContent = "EXPIRADO";
+                otpCodigo.classList.add('expirado');
+            }
+        }, 1000);
+    }
+</script>
+
+</body>
+</html>
