@@ -1,5 +1,6 @@
+# app/main.py
 from fastapi import FastAPI
-from app.controllers import controlador_generador_otp
+from app.controllers import controlador_generador_otp, controlador_autenticacion, controlador_usuarios
 
 app = FastAPI(
     title="Electronic Batch Record (EBR) - DEMO",
@@ -7,8 +8,9 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# Inclusión del router del Generador OTP
 app.include_router(controlador_generador_otp.router)
+app.include_router(controlador_autenticacion.router)
+app.include_router(controlador_usuarios.router)   # NUEVO
 
 @app.get("/")
 async def inicio():
