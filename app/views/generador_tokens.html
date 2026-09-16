@@ -296,12 +296,16 @@
 
 <script>
     let intervaloTimer = null;
+    let temporizadorReset = null; // NUEVO: controla el reset a los 2 minutos
 
     const mensajeInline = document.getElementById('mensajeInline');
     const seccionResultado = document.getElementById('seccionResultado');
     const btnGenerar = document.getElementById('btnGenerar');
     const btnCopiar = document.getElementById('btnCopiar');
     const otpCodigo = document.getElementById('otpCodigo');
+    const formOTP = document.getElementById('formOTP');
+    const inputUsername = document.getElementById('username');
+    const inputPassword = document.getElementById('password');
 
     function mostrarMensaje(texto, tipo) {
         mensajeInline.textContent = texto;
@@ -313,11 +317,30 @@
         mensajeInline.textContent = '';
     }
 
-    document.getElementById('formOTP').addEventListener('submit', async (e) => {
+    // NUEVO: limpia todo y regresa al formulario vacío, como recién cargada la página
+    function reiniciarPantalla() {
+        if (intervaloTimer) clearInterval(intervaloTimer);
+        if (temporizadorReset) clearTimeout(temporizadorReset);
+
+        formOTP.reset();
+        ocultarMensaje();
+        seccionResultado.classList.remove('visible');
+        otpCodigo.textContent = '0000';
+        otpCodigo.classList.remove('expirado');
+        inputUsername.focus();
+    }
+
+    // NUEVO: programa el reset 2 minutos después de mostrarse un resultado
+    function programarResetPantalla() {
+        if (temporizadorReset) clearTimeout(temporizadorReset);
+        temporizadorReset = setTimeout(reiniciarPantalla, 2 * 60 * 1000); // 120000 ms
+    }
+
+    formOTP.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+        const username = inputUsername.value;
+        const password = inputPassword.value;
 
         ocultarMensaje();
         btnGenerar.disabled = true;
@@ -334,6 +357,7 @@
             if (!respuesta.ok) {
                 mostrarMensaje(data.mensaje || "Usuario o contraseña incorrectos", 'error');
                 seccionResultado.classList.remove('visible');
+                programarResetPantalla(); // NUEVO: también resetea tras un error mostrado
                 return;
             }
 
@@ -343,6 +367,7 @@
             seccionResultado.classList.add('visible');
 
             iniciarTemporizador(data.expira_en_segundos);
+            programarResetPantalla(); // NUEVO: arranca el reloj de 2 minutos
 
         } catch (err) {
             mostrarMensaje("Error de comunicación con el servidor Uvicorn.", 'error');
@@ -384,6 +409,5 @@
         }, 1000);
     }
 </script>
-
 </body>
 </html>

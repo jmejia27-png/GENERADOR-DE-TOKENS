@@ -24,7 +24,7 @@ class AuditTrail(Base):
     entidad: Mapped[str] = mapped_column(String(50), nullable=False)
     entidad_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     accion: Mapped[str] = mapped_column(String(50), nullable=False)
-    resultado: Mapped[str] = mapped_column(String(20), nullable=False)
+    resultado: Mapped[str] = mapped_column(String(50), nullable=False)
     ip_address: Mapped[Optional[str]] = mapped_column(String(45), nullable=True)
     device_info: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     datos_anteriores: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
