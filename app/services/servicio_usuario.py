@@ -1,3 +1,4 @@
+# app/services/servicio_usuarios.py
 from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -82,7 +83,7 @@ class ServicioUsuarios:
             datos_nuevos={
                 "username": nuevo_usuario.username,
                 "email": nuevo_usuario.email,
-                "rol": nuevo_usuario.rol.value
+                "rol": nuevo_usuario.rol.value if hasattr(nuevo_usuario.rol, "value") else str(nuevo_usuario.rol)
             }
         )
         return nuevo_usuario
@@ -128,4 +129,40 @@ class ServicioUsuarios:
         )
         return usuario
 
-    
+    @staticmethod
+    def restablecer_password_temporal(
+        db: Session,
+        usuario_id: str,
+        username_confirmacion: str,
+        password_temporal: str,
+        admin_actual: Usuario,
+        ip_address: str = "127.0.0.1"
+    ) -> Usuario:
+        usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+        if not usuario:
+            raise LookupError("Usuario no encontrado")
+
+        if usuario.username != username_confirmacion:
+            raise ValueError("El username no coincide con el usuario indicado en la URL")
+
+        if not usuario.activo:
+            raise ValueError("No se puede restablecer la contraseña de un usuario inactivo. Actívelo primero.")
+
+        usuario.password_hash = obtener_password_hash(password_temporal)
+        usuario.requiere_cambio_password = True
+        db.commit()
+        db.refresh(usuario)
+
+        ServicioAuditoria.registrar_evento(
+            db=db,
+            usuario_id=admin_actual.id,
+            evento="PASSWORD_RESETEADA_POR_ADMIN",
+            modulo="ADMIN",
+            entidad="usuarios",
+            entidad_id=str(usuario.id),
+            accion="RESTABLECER_PASSWORD",
+            resultado="EXITO",
+            ip_address=ip_address,
+            datos_nuevos={"requiere_cambio_password": True}
+        )
+        return usuario

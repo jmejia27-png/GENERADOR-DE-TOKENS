@@ -35,6 +35,7 @@ class Usuario(Base):
         nullable=False
     )
 
+    requiere_cambio_password: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     activo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     creado_en: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

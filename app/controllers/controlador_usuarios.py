@@ -6,6 +6,9 @@ from app.services.servicio_usuario import ServicioUsuarios
 from app.services.servicio_autenticacion import obtener_admin_actual, obtener_db
 from app.schemas.esquema_usuario import UsuarioCrear, UsuarioActualizar, UsuarioRespuesta
 from app.models.modelo_usuario import Usuario, RolUsuario
+from app.schemas.esquema_usuario import (
+    UsuarioCrear, UsuarioActualizar, UsuarioRestablecerPassword, UsuarioRespuesta
+)
 
 router = APIRouter(
     prefix="/admin/usuarios",
@@ -64,3 +67,23 @@ async def actualizar_usuario(
     if not usuario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
     return usuario
+
+
+
+@router.patch("/{usuario_id}/restablecer-password", response_model=UsuarioRespuesta)
+async def restablecer_password(
+    usuario_id: str,
+    datos: UsuarioRestablecerPassword,
+    request: Request,
+    db: Session = Depends(obtener_db),
+    admin_actual: Usuario = Depends(obtener_admin_actual)
+):
+    ip_cliente = request.client.host if request.client else "127.0.0.1"
+    try:
+        return ServicioUsuarios.restablecer_password_temporal(
+            db, usuario_id, datos.username, datos.password_temporal, admin_actual, ip_cliente
+        )
+    except LookupError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))    

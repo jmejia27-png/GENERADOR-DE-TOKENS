@@ -9,3 +9,4 @@ class RespuestaOTP(BaseModel):
     codigo_otp: str | None = None
     expira_en_segundos: int | None = None
     mensaje: str
+    requiere_cambio_password: bool = False

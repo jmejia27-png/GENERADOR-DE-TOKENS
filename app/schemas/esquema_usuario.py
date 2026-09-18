@@ -30,3 +30,6 @@ class UsuarioRespuesta(BaseModel):
     activo: bool
     creado_en: datetime
 
+class UsuarioRestablecerPassword(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    password_temporal: str = Field(..., min_length=4)    
