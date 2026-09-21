@@ -64,7 +64,8 @@ class ServicioUsuarios:
             nombre_completo=datos.nombre_completo,
             password_hash=obtener_password_hash(datos.password),
             rol=datos.rol,
-            activo=True
+            activo=True,
+            requiere_cambio_password=True
         )
         db.add(nuevo_usuario)
         db.commit()

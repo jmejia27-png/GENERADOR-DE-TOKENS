@@ -472,8 +472,8 @@
     }
 
     function programarResetPantalla() {
-        if (temporizadorReset) clearTimeout(temporizadorReset);
-        temporizadorReset = setTimeout(reiniciarPantalla, 2 * 60 * 1000);
+    if (temporizadorReset) clearTimeout(temporizadorReset);
+    temporizadorReset = setTimeout(reiniciarPantalla, 1 * 60 * 1000); 
     }
 
     function mostrarOtpGenerado(codigoOtp, expiraSegundos) {

@@ -4,7 +4,8 @@ from app.controllers import (
     controlador_generador_otp,
     controlador_autenticacion,
     controlador_usuarios,
-    controlador_panel_admin  # NUEVO
+    controlador_panel_admin,
+    controlador_generador_otp, controlador_autenticacion, controlador_usuarios, controlador_panel_admin, controlador_ebr
 )
 
 app = FastAPI(
@@ -16,7 +17,8 @@ app = FastAPI(
 app.include_router(controlador_generador_otp.router)
 app.include_router(controlador_autenticacion.router)
 app.include_router(controlador_usuarios.router)
-app.include_router(controlador_panel_admin.router)   # NUEVO
+app.include_router(controlador_panel_admin.router) 
+app.include_router(controlador_ebr.router)  # Agregar el router del controlador EBR
 
 @app.get("/")
 async def inicio():

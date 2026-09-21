@@ -43,5 +43,11 @@ class Usuario(Base):
         nullable=False
     )
 
+    password_actualizada_en: Mapped[datetime] = mapped_column(
+    DateTime(timezone=True),
+    default=lambda: datetime.now(timezone.utc),
+    nullable=False
+    )
+
     otps: Mapped[list["TokenOTP"]] = relationship("TokenOTP", back_populates="usuario", cascade="all, delete-orphan")
     auditorias: Mapped[list["AuditTrail"]] = relationship("AuditTrail", back_populates="usuario")
